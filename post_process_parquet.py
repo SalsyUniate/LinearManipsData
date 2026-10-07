@@ -13,15 +13,23 @@ def calculate_rms(data, signal_name):
     srms = np.sqrt(((s -  sm)**2).mean())
     return srms
 
+def measure_phase(t, x, f):
+    """
+    Measures the phase of the component of frequency f in signal.
+    """
+    omega = 2 * np.pi * f
+    a = np.sum(np.asarray(x * np.sin(omega * np.asarray(t)))) / np.asarray(x).size * 2
+    b = np.sum(np.asarray(x * np.cos(omega * np.asarray(t)))) / np.asarray(x).size * 2
+    theta = np.arctan2(b, a)
+    return theta
+
 def phase_shift(d, f):
     time = d["time_meas"]
     acc1 = d["acc1_meas_vect"]
     acc2 = d["acc2_meas_vect"]
-    bacc1 = np.trapezoid((acc1-np.mean(np.asarray(acc1)))*np.sin(2*pi*f*time), x=time)
-    aacc1 = np.trapezoid((acc1-np.mean(np.asarray(acc1)))*np.cos(2*pi*f*time), x=time)
-    bacc2 = np.trapezoid((acc2-np.mean(np.asarray(acc2)))*np.sin(2*pi*f*time), x=time)
-    aacc2 = np.trapezoid((acc2-np.mean(np.asarray(acc2)))*np.cos(2*pi*f*time), x=time)
-    phase_shift = np.atan(bacc2/aacc2)-np.atan(bacc1/aacc1)
+    theta1 = measure_phase(time, acc1, f)
+    theta2 = measure_phase(time, acc2, f)
+    phase_shift = theta2-theta1
     return phase_shift
 
 def calculate_dataframe(batch_name):
@@ -56,8 +64,9 @@ def calculate_dataframe(batch_name):
         outputs["dotxrms"].append(calculate_rms(data, "vit_meas_vect"))
         outputs["acc1_temp"].append(data.get_column("acc1_meas_vect").to_numpy())
         outputs["acc2_temp"].append(data.get_column("acc2_meas_vect").to_numpy())
-        outputs["phase_shift"].append(phase_shift(data, f))
         outputs["err_mean"].append(data["err_meas_vect"])
+        dphi = phase_shift(data, f)
+        outputs["phase_shift"].append(dphi)
 
     data = pl.from_dict(outputs)
     return data

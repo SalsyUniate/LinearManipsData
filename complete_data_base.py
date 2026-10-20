@@ -32,12 +32,15 @@ def phase_shift(d, f):
     phase_shift = theta2-theta1
     return phase_shift
 
-def calculate_dataframe(batch_name):
+if __name__ == "__main__" :
     input_dir = "outputs"
-    # batch_name = batch_name
+    batch_name = "2026_10_16_18h29"
     batch_dir = f"{input_dir}/{batch_name}"
+    output_dir =  "data_complete"
+    output_data_path = f"{output_dir}/{batch_name}.parquet"
     tests = sorted([d for d in os.listdir(f"{batch_dir}") if os.path.isdir(f"{batch_dir}/{d}")])
     outputs = {k:[] for k in ["test", "time_meas", "Rload", "f", "pow1", "pow2", "v1rms", "v2rms", "acc1rms", "acc2rms", "xrms", "dotxrms", "acc1_temp", "acc2_temp", "phase_shift", "err_mean"]}
+
 
     for test in tests:
         data = pl.read_parquet(f"{batch_dir}/{test}/{test}.parquet")
@@ -69,4 +72,4 @@ def calculate_dataframe(batch_name):
         outputs["phase_shift"].append(dphi)
 
     data = pl.from_dict(outputs)
-    return data
+    data.write_parquet(output_data_path)

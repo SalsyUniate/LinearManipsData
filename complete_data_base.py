@@ -34,7 +34,7 @@ def phase_shift(d, f):
 
 if __name__ == "__main__" :
     input_dir = "outputs"
-    batch_name = "2026_10_20_16h36"
+    batch_name = "2026_10_21_11h44"
     batch_dir = f"{input_dir}/{batch_name}"
     output_dir =  "data_complete"
     output_data_path = f"{output_dir}/{batch_name}.parquet"

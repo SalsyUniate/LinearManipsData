@@ -34,10 +34,10 @@ def phase_shift(d, f):
 
 if __name__ == "__main__" :
     input_dir = "outputs"
-    batch_name = "2026_10_21_11h44"
+    batch_name = "2026_10_27_18h58"
     batch_dir = f"{input_dir}/{batch_name}"
     output_dir =  "data_complete"
-    output_data_path = f"{output_dir}/{batch_name}.parquet"
+    output_data_path = f"{output_dir}/tau.parquet"
     tests = sorted([d for d in os.listdir(f"{batch_dir}") if os.path.isdir(f"{batch_dir}/{d}")])
     outputs = {k:[] for k in ["test", "time_meas", "Rload", "f", "pow1", "pow2", "v1rms", "v2rms", "acc1rms", "acc2rms", "xrms", "dotxrms", "acc1_temp", "acc2_temp", "phase_shift", "err_mean"]}
 
@@ -46,8 +46,13 @@ if __name__ == "__main__" :
         data = pl.read_parquet(f"{batch_dir}/{test}/{test}.parquet")
         with open(f"{batch_dir}/{test}/{test}.json") as ml:
             metadata = json.load(ml)
-        Rload = float(metadata["Rload"])
         f     = float(metadata['f'])
+        # if f >= 120:
+        #     print('f above 120')
+        # else: 
+        Rload = float(metadata["Rload"])
+        # Cpload = float(metadata["Cpload"])
+
 
         v1rms = calculate_rms(data, "tension1_meas_vect")
         v2rms = calculate_rms(data, "tension2_meas_vect")
@@ -57,6 +62,7 @@ if __name__ == "__main__" :
         outputs["time_meas"].append(data.get_column("time_meas").to_numpy())
         outputs["f"].append(f)
         outputs["Rload"].append(Rload) 
+        # outputs["Cpload"].append(Cpload) 
         outputs["pow1"].append(pow1)
         outputs["pow2"].append(pow2)
         outputs["v1rms"].append(v1rms)
@@ -70,6 +76,42 @@ if __name__ == "__main__" :
         outputs["err_mean"].append(data["err_meas_vect"])
         dphi = phase_shift(data, f)
         outputs["phase_shift"].append(dphi)
+
+    # batch_name = "2026_11_2_11h02"
+    # batch_dir = f"{input_dir}/{batch_name}"
+    # output_data_path = f"{output_dir}/{batch_name}.parquet"
+    # tests = sorted([d for d in os.listdir(f"{batch_dir}") if os.path.isdir(f"{batch_dir}/{d}")])
+    # print('started second set ')
+    # for test in tests:
+    #     data = pl.read_parquet(f"{batch_dir}/{test}/{test}.parquet")
+    #     with open(f"{batch_dir}/{test}/{test}.json") as ml:
+    #         metadata = json.load(ml)
+    #         f     = float(metadata['f'])
+    #         Rload = float(metadata["Rload"])
+    #         # Cpload = float(metadata["Cpload"])
+    #         v1rms = calculate_rms(data, "tension1_meas_vect")
+    #         v2rms = calculate_rms(data, "tension2_meas_vect")
+    #         pow1 = v1rms**2 / Rload
+    #         pow2 = v2rms**2 / Rload
+    #         outputs["test"].append(test) 
+    #         outputs["time_meas"].append(data.get_column("time_meas").to_numpy())
+    #         outputs["f"].append(f)
+    #         outputs["Rload"].append(Rload) 
+    #         # outputs["Cpload"].append(Cpload) 
+    #         outputs["pow1"].append(pow1)
+    #         outputs["pow2"].append(pow2)
+    #         outputs["v1rms"].append(v1rms)
+    #         outputs["v2rms"].append(v2rms)
+    #         outputs["acc1rms"].append(calculate_rms(data, 'acc1_meas_vect'))
+    #         outputs["acc2rms"].append(calculate_rms(data, 'acc2_meas_vect'))
+    #         outputs["xrms"].append(calculate_rms(data, "dep_meas_vect"))
+    #         outputs["dotxrms"].append(calculate_rms(data, "vit_meas_vect"))
+    #         outputs["acc1_temp"].append(data.get_column("acc1_meas_vect").to_numpy())
+    #         outputs["acc2_temp"].append(data.get_column("acc2_meas_vect").to_numpy())
+    #         outputs["err_mean"].append(data["err_meas_vect"])
+    #         dphi = phase_shift(data, f)
+    #         outputs["phase_shift"].append(dphi)
+    
 
     data = pl.from_dict(outputs)
     data.write_parquet(output_data_path)

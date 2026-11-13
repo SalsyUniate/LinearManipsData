@@ -39,7 +39,7 @@ def read_matlab_file(mat_path):
 if __name__ == "__main__":
     source_dir = "matlab_data"
     output_dir = "outputs"
-    batch_name = "2026_11_2_11h02"
+    batch_name = "carac_david_nylon/2026_11_12_11h26"
     matlab_file_names = list_matlab_files(source_dir, batch_name)
 
     for mat_fname in matlab_file_names: 
@@ -52,4 +52,3 @@ if __name__ == "__main__":
         output_metadata_path = f"{output_dir}/{batch_name}/{mat_root}/{mat_root}.json"
         with open(output_metadata_path, "w") as mf:
             json.dump(metadata, mf)
-    

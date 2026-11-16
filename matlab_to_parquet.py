@@ -39,7 +39,7 @@ def read_matlab_file(mat_path):
 if __name__ == "__main__":
     source_dir = "matlab_data"
     output_dir = "outputs"
-    batch_name = "carac_david_nylon/2026_11_12_11h26"
+    batch_name = "coupled"
     matlab_file_names = list_matlab_files(source_dir, batch_name)
 
     for mat_fname in matlab_file_names: 
